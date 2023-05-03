@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.List;
 
 @Controller
-@RequestMapping("/api/category")
+@RequestMapping("/category")
 public class CategoriesController {
     @Autowired
     private CategoryRepository categoryRepository;

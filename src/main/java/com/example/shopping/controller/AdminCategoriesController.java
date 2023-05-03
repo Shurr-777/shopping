@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.util.List;
+import org.springframework.stereotype.Controller;
 
-@RestController
-@RequestMapping("/api/admin/categories")
+@Controller
 public class AdminCategoriesController {
 
         @Autowired
         private CategoryRepository categoryRepository;
 
-        @GetMapping("/")
+        @GetMapping("/admin/categories")
         public String index(Model model) {
 
             List<Category> categories = categoryRepository.findAllByOrderBySequenceNumberAsc();
@@ -27,13 +27,12 @@ public class AdminCategoriesController {
         }
 
 
-        @GetMapping("/add")
+        @GetMapping("/admin/categories/add")
         public String add(Category category) {
-
             return "admin/categories/add";
         }
 
-        @PostMapping("/add")
+        @PostMapping("/admin/categories/add")
         public String add(@Valid Category category, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
 
             if (bindingResult.hasErrors()) {
@@ -57,20 +56,22 @@ public class AdminCategoriesController {
 
                 categoryRepository.save(category);
             }
-            return "redirect:/admin/categories/add";
+            return "redirect:/admin/categories";
         }
 
-        @GetMapping("/edit/{id}")
+        @GetMapping("/admin/categories/edit/{id}")
         public String edit(@PathVariable int id, Model model) {
-
-            Category category = categoryRepository.getOne(id);
+ 
+            Category category = categoryRepository.findById(id).get();
 
             model.addAttribute("category", category);
+
+            System.out.println("CATEGORY " + category);
 
             return "admin/categories/edit";
         }
 
-        @PostMapping("/edit")
+        @PostMapping("/admin/categories/edit")
         public String edit(@Valid Category category, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
 
             Category categoryCurrent = categoryRepository.getOne(category.getId());
@@ -79,6 +80,7 @@ public class AdminCategoriesController {
                 model.addAttribute("categoryName", categoryCurrent.getName());
                 return "admin/categories/edit";
             }
+
 
             redirectAttributes.addFlashAttribute("message", "Category edited");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
@@ -96,10 +98,10 @@ public class AdminCategoriesController {
 
                 categoryRepository.save(category);
             }
-            return "redirect:/admin/categories/edit/" + category.getId();
+            return "redirect:/admin/categories";
         }
 
-        @GetMapping("/delete/{id}")
+        @GetMapping("/admin/categories/delete/{id}")
         public String edit(@PathVariable int id, RedirectAttributes redirectAttributes) {
 
             categoryRepository.deleteById(id);
@@ -107,10 +109,10 @@ public class AdminCategoriesController {
             redirectAttributes.addFlashAttribute("message", "Category deleted");
             redirectAttributes.addFlashAttribute("alertClass", "alert-success");
 
-            return "admin/categories/index";
+            return "redirect:/admin/categories";
         }
 
-        @PostMapping("/reorder")
+        @PostMapping("/admin/categories/reorder")
         public @ResponseBody
         String reorder(@RequestParam("id[]") int[] id) {
             int count = 1;

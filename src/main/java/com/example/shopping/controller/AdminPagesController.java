@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.util.List;
+import org.springframework.stereotype.Controller;
 
-@RestController
-@RequestMapping("/api/admin/pages")
+@Controller
 public class AdminPagesController {
     @Autowired
     private PageRepository pageRepository;
 
-    @GetMapping("/")
+    @GetMapping("/admin/pages")
     public String index(Model model) {
 
         List<Page> pages = pageRepository.findAllByOrderBySequenceNumberAsc();
@@ -25,13 +25,12 @@ public class AdminPagesController {
         return "admin/pages/index";
     }
 
-    @GetMapping("/add")
+    @GetMapping("/admin/pages/add")
     public String add(Page page) {
-
         return "admin/pages/add";
     }
 
-    @PostMapping("/add")
+    @PostMapping("/admin/pages/add")
     public String add(@Valid Page page, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
 
         if (bindingResult.hasErrors()) {
@@ -49,29 +48,30 @@ public class AdminPagesController {
             redirectAttributes.addFlashAttribute("message", "Slug exists, choose another");
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
             redirectAttributes.addFlashAttribute("page", page);
+            return "redirect:/admin/pages/add";
         } else {
             page.setIdentificator(identificator);
             page.setSequenceNumber(100);
 
             pageRepository.save(page);
         }
-        return "redirect:/admin/pages/add";
+        return "redirect:/admin/pages";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/admin/pages/edit/{id}")
     public String edit(@PathVariable int id, Model model) {
 
-        Page page = pageRepository.getOne(id);
+        Page page = pageRepository.findById(id).get();
 
         model.addAttribute("page", page);
 
         return "admin/pages/edit";
     }
 
-    @PostMapping("/edit")
+    @PostMapping("/admin/pages/edit")
     public String edit(@Valid Page page, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
 
-        Page pageCurrent = pageRepository.getOne(page.getId());
+        Page pageCurrent = pageRepository.findById(page.getId()).get();
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageTitle", pageCurrent.getTitle());
@@ -89,15 +89,16 @@ public class AdminPagesController {
             redirectAttributes.addFlashAttribute("message", "Slug exists, choose another");
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
             redirectAttributes.addFlashAttribute("page", page);
+            return "redirect:/admin/pages/edit/" + page.getId();
         } else {
             page.setIdentificator(identificator);
 
             pageRepository.save(page);
         }
-        return "redirect:/admin/pages/edit/" + page.getId();
+        return "redirect:/admin/pages";
     }
 
-    @GetMapping("/delete/{id}")
+    @GetMapping("/admin/pages/delete/{id}")
     public String edit(@PathVariable int id, RedirectAttributes redirectAttributes) {
 
         pageRepository.deleteById(id);
@@ -105,16 +106,16 @@ public class AdminPagesController {
         redirectAttributes.addFlashAttribute("message", "Page deleted");
         redirectAttributes.addFlashAttribute("alertClass", "alert-success");
 
-        return "admin/pages/index";
+        return "redirect:/admin/pages";
     }
 
-    @PostMapping("/reorder")
+    @PostMapping("/admin/pages/reorder")
     public @ResponseBody String reorder(@RequestParam("id[]") int[] id) {
         int count = 1;
         Page page;
 
         for (int pageId : id) {
-            page = pageRepository.getOne(pageId);
+            page = pageRepository.findById(pageId).get();
             page.setSequenceNumber(count);
             pageRepository.save(page);
             count++;

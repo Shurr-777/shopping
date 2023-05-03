@@ -19,9 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
+import org.springframework.stereotype.Controller;
 
-@RestController
-@RequestMapping("/api/admin/products")
+@Controller
 public class AdminProductController {
     @Autowired
     private ProductRepository productRepository;
@@ -29,7 +29,7 @@ public class AdminProductController {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @GetMapping("/")
+    @GetMapping("/admin/products")
     public String index(Model model, @RequestParam(value="page", required = false) Integer p) {
 
         int perPage = 6;
@@ -58,7 +58,7 @@ public class AdminProductController {
         return "admin/products/index";
     }
 
-    @GetMapping("/add")
+    @GetMapping("/admin/products/add")
     public String add(Product product, Model model) {
 
         List<Category> categories = categoryRepository.findAll();
@@ -68,7 +68,7 @@ public class AdminProductController {
     }
 
 
-    @PostMapping("/add")
+    @PostMapping("/admin/products/add")
     public String add(@Valid Product product,
                       BindingResult bindingResult,
                       MultipartFile file,
@@ -102,11 +102,13 @@ public class AdminProductController {
             redirectAttributes.addFlashAttribute("message", "Image must be a jpg or a png");
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
             redirectAttributes.addFlashAttribute("product", product);
+            return "redirect:/admin/products/add";
         }
         else if (productExists != null) {
             redirectAttributes.addFlashAttribute("message", "Product exists, choose another");
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
             redirectAttributes.addFlashAttribute("product", product);
+            return "redirect:/admin/products/add";
         } else {
             product.setIdentificator(identificator);
             product.setImage(filename);
@@ -114,13 +116,13 @@ public class AdminProductController {
             productRepository.save(product);
             Files.write(path, bytes);
         }
-        return "redirect:/admin/products/add";
+        return "redirect:/admin/products";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/admin/products/edit/{id}")
     public String edit(@PathVariable int id, Model model) {
 
-        Product product = productRepository.getOne(id);
+        Product product = productRepository.findById(id).get();
         List<Category> categories = categoryRepository.findAll();
 
         model.addAttribute("product", product);
@@ -129,14 +131,14 @@ public class AdminProductController {
         return "admin/products/edit";
     }
 
-    @PostMapping("/edit")
+    @PostMapping("/admin/products/edit")
     public String edit(@Valid Product product,
                        BindingResult bindingResult,
                        MultipartFile file,
                        RedirectAttributes redirectAttributes,
                        Model model) throws IOException {
 
-        Product currentProduct = productRepository.getOne(product.getId());
+        Product currentProduct = productRepository.findById(product.getId()).get();
 
         List<Category> categories = categoryRepository.findAll();
 
@@ -170,12 +172,14 @@ public class AdminProductController {
             redirectAttributes.addFlashAttribute("message", "Image must be a jpg or a png");
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
             redirectAttributes.addFlashAttribute("product", product);
+            return "redirect:/admin/products/edit/" + product.getId();
         }
         else if (productExists != null) {
             redirectAttributes.addFlashAttribute("message", "Product exists, choose another");
             redirectAttributes.addFlashAttribute("alertClass", "alert-danger");
             redirectAttributes.addFlashAttribute("product", product);
-        } else {
+            return "redirect:/admin/products/edit/" + product.getId();
+        } else { 
 
             product.setIdentificator(identificator);
 
@@ -190,19 +194,16 @@ public class AdminProductController {
 
             productRepository.save(product);
         }
-        return "redirect:/admin/products/edit/" + product.getId();
+        return "redirect:/admin/products";
     }
 
-    @GetMapping("/delete/{id}")
+    @GetMapping("/admin/products/delete/{id}")
     public String delete(@PathVariable int id, RedirectAttributes redirectAttributes) throws IOException {
+        Product product = productRepository.findById(id).get();
 
-        Product product = productRepository.getOne(id);
-        Product currentProduct = productRepository.getOne(product.getId());
-
-        Path path2 = Paths.get("src/main/resources/static/media/" + currentProduct.getImage());
+        Path path2 = Paths.get("src/main/resources/static/media/" + product.getImage());
         productRepository.deleteById(id);
         Files.delete(path2);
-        productRepository.deleteById(id);
 
         redirectAttributes.addFlashAttribute("message", "Product deleted");
         redirectAttributes.addFlashAttribute("alertClass", "alert-success");

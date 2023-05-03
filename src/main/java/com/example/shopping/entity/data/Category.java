@@ -5,9 +5,12 @@ import lombok.Data;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Entity
 @Table(name="categories")
 @Data
+@Transactional
 public class Category {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -22,4 +25,11 @@ public class Category {
     private String identificator;
 
     private int sequenceNumber;
+
+    public Category(int id) {
+        this.id = id;
+    }
+
+    public Category() {
+    }
 }

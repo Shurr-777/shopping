@@ -19,6 +19,7 @@ public class Page {
 
     private String identificator;
 
+    @Column(columnDefinition="TEXT")
     @Size(min=5, message = "Title must be at least 5 characters long")
     private String content;
 

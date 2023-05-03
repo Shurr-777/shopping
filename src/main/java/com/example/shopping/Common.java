@@ -25,7 +25,8 @@ public class Common {
     public void sharedData(Model model, HttpSession session, Principal principal) {
 
         if (principal != null) {
-            model.addAttribute("principal", principal.getName());
+            model.addAttribute("principalName", principal.getName());
+            model.addAttribute("principal", principal);
         }
 
         List<Page> pages = pageRepository.findAllByOrderBySequenceNumberAsc();

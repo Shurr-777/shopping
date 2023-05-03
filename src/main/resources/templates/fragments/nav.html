@@ -22,8 +22,21 @@
             </li>
         </ul>
 
+        <ul class="navbar-nav mr-auto" th:if="${principal != null and principal.authorities[0].toString()=='ROLE_ADMIN'}">
+            <li class="nav-item active">
+                <a class="nav-link" href="/admin/pages">Pages</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/admin/categories">Categories</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/admin/products">Products</a>
+            </li>
+
+        </ul>
+
         <form th:if="${principal != null}" method="post" th:action="@{/logout}">
-            <span class="text-white" th:text="${'Hi, ' + principal}"></span>
+            <span class="text-white" th:text="${'Hi, ' + principalName}"></span>
             <button class="btn btn-secondary">Logout</button>
         </form>
 
@@ -36,6 +49,7 @@
             aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
+
 
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
@@ -52,7 +66,7 @@
         </ul>
 
         <form class="float-right" th:if="${principal != null}" method="post" th:action="@{/logout}">
-            <span class="text-white" th:text="${'Hi, ' + principal}"></span>
+            <span class="text-white" th:text="${'Hi, ' + principalName}"></span>
             <button class="btn btn-secondary">Logout</button>
         </form>
     </div>

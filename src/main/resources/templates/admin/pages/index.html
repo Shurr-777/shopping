@@ -23,11 +23,11 @@
                 <th>Edit</th>
                 <th>Delete</th>
             </tr>
-            <tr th:each="page: ${pages}" th:id="'id_' + ${page.id}" th:class="${page.slug}">
+            <tr th:each="page: ${pages}" th:id="'id_' + ${page.id}" th:class="${page.identificator}">
                 <td th:text="${page.title}"></td>
-                <td th:text="${page.slug}"></td>
+                <td th:text="${page.identificator}"></td>
                 <td><a th:href="@{'/admin/pages/edit/' + ${page.id}}">Edit</a></td>
-                <td><a th:if="${page.slug != 'home'}" th:href="@{'/admin/pages/delete/' + ${page.id}}" class="confirmDeletion">Delete</a></td>
+                <td><a th:if="${page.identificator != 'home'}" th:href="@{'/admin/pages/delete/' + ${page.id}}" class="confirmDeletion">Delete</a></td>
             </tr>
         </table>
     </div>

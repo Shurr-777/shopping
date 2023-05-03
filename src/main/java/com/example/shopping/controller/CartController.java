@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
+import org.springframework.stereotype.Controller;
 
-@RestController
-@RequestMapping("/api/cart")
+@Controller
+@RequestMapping("/cart")
 public class CartController {
     @Autowired
     private ProductRepository productRepository;
@@ -21,7 +22,7 @@ public class CartController {
                       Model model,
                       @RequestParam(value="cartPage", required = false) String cartPage) {
 
-        Product product = productRepository.getOne(id);
+        Product product = productRepository.findById(id).get();
 
         if (session.getAttribute("cart") == null) {
 
@@ -66,7 +67,7 @@ public class CartController {
                            Model model,
                            HttpServletRequest httpServletRequest) {
 
-        Product product = productRepository.getOne(id);
+        Product product = productRepository.findById(id).get();
 
         HashMap<Integer, Cart> cart = (HashMap<Integer, Cart>) session.getAttribute("cart");
 
@@ -105,8 +106,6 @@ public class CartController {
 
     @GetMapping("/clear")
     public String clear(HttpSession session, HttpServletRequest httpServletRequest) {
-
-
         session.removeAttribute("cart");
 
         String refererLink = httpServletRequest.getHeader("referer");
@@ -121,7 +120,7 @@ public class CartController {
         if (session.getAttribute("cart") == null) {
             return "redirect:/";
         }
-
+ 
         HashMap<Integer, Cart> cart = (HashMap<Integer, Cart>) session.getAttribute("cart");
         model.addAttribute("cart", cart);
         model.addAttribute("notCartViewPage", true);
